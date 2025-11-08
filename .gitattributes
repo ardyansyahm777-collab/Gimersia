@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# Ensure git stores this file with LF line endings in repo
+# (no functional change; informational)
