@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 1001917565079038538}
   - component: {fileID: 4870108230118090723}
   - component: {fileID: 5766533138689009638}
-  - component: {fileID: -3429407539876919321}
+  - component: {fileID: 240681955941406600}
+  - component: {fileID: -8244669973239209793}
   m_Layer: 0
-  m_Name: proyektil
+  m_Name: PlayerProjectil
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -121,7 +122,7 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
---- !u!114 &-3429407539876919321
+--- !u!114 &240681955941406600
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -130,6 +131,34 @@ MonoBehaviour:
   m_GameObject: {fileID: 6913463952096583639}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb78524411d5c944bad6f5852f5f999f, type: 3}
+  m_Script: {fileID: 11500000, guid: d862ad36864b9244f813016b42f69c85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 10
+--- !u!50 &-8244669973239209793
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6913463952096583639}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0

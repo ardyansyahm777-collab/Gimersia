@@ -8,6 +8,7 @@ TagManager:
   - Monster
   - Barrier
   - KillZone
+  - Boss
   layers:
   - Default
   - TransparentFX
