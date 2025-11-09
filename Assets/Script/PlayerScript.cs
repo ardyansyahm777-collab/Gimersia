@@ -10,10 +10,13 @@ public class PlayerMovement : MonoBehaviour
     private int jumpCount;   // menghitung sudah lompat berapa kali
     private bool isGrounded;
 
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
     }
+
+
 
     void Update()
     {

@@ -3,17 +3,17 @@ using UnityEngine;
 public class MonsterUlat : MonoBehaviour
 {
     private GameOverManager gameOverManager;
-    public float speed = 2f; // kecepatan maju
-    public Transform player; // untuk deteksi tabrakan (opsional)
+    public float speed = 2f;
+    public Transform player;
     private bool canMove = true;
+    private Vector3 startPosition;
 
     void Start()
     {
+        startPosition = transform.position;
         gameOverManager = FindObjectOfType<GameOverManager>();
-        // Pastikan monster menghadap arah kanan
         transform.localScale = new Vector3(1, 1, 1);
 
-        // Otomatis cari player (kalau ada)
         if (player == null)
         {
             GameObject p = GameObject.FindGameObjectWithTag("Player");
@@ -23,27 +23,28 @@ public class MonsterUlat : MonoBehaviour
 
     void Update()
     {
-        if (!canMove) return; // berhenti kalau tidak boleh bergerak
-        // Bergerak terus ke kanan tanpa henti
+        if (!canMove) return;
         transform.Translate(Vector2.right * speed * Time.deltaTime);
+    }
+
+    public void ResetMonster()
+    {
+        transform.position = startPosition;
+        canMove = true;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            Debug.Log("GAME OVER: Monster caught the player!");
-            gameOverManager?.ShowGameOver();
-        }
-        else if (other.CompareTag("Barrier"))
+
+        if (other.CompareTag("Barrier"))
         {
             StopMoving();
             Debug.Log("Monster menabrak barrier dan berhenti (trigger mode)!");
         }
     }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Hentikan saat nabrak barrier
         if (collision.gameObject.CompareTag("Barrier"))
         {
             StopMoving();
