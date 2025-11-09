@@ -3,40 +3,45 @@ using UnityEngine.SceneManagement;
 
 public class GameOverManager : MonoBehaviour
 {
+    [Header("UI")]
     public GameObject gameOverPanel;
 
-    private Vector3 playerStartPos;
     private GameObject player;
+    private PlayerMovement playerMovement;
     private MonsterUlat monster;
-    private TrapActivator[] traps; // Tambahan — biar bisa reset semua trap
+    private TrapActivator[] traps;
+    private Vector3 playerStartPos;
 
     void Start()
     {
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
 
-        // Cari player dan monster
+        // Cari player dan komponen penting
         player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            playerMovement = player.GetComponent<PlayerMovement>();
+            playerStartPos = player.transform.position;
+        }
 
+        // Cari monster jika ada
         GameObject m = GameObject.FindGameObjectWithTag("Monster");
         if (m != null)
             monster = m.GetComponent<MonsterUlat>();
 
-        // Simpan posisi awal player
-        if (player != null)
-            playerStartPos = player.transform.position;
-
-        // Temukan semua trap di scene
+        // Cari semua trap di scene
         traps = FindObjectsOfType<TrapActivator>();
     }
 
+    // === Dipanggil dari PlayerMovement saat HP habis ===
     public void ShowGameOver()
     {
-        Debug.Log("ShowGameOver() dipanggil!");
+        Debug.Log("Game Over: Player HP habis!");
 
         if (gameOverPanel == null)
         {
-            Debug.LogWarning("GameOverPanel belum diisi di Inspector!");
+            Debug.LogWarning("⚠️ GameOverPanel belum di-assign di Inspector!");
             return;
         }
 
@@ -44,37 +49,45 @@ public class GameOverManager : MonoBehaviour
         gameOverPanel.SetActive(true);
     }
 
+    // === Tombol “Coba Lagi” ===
     public void ReturnToStart()
     {
         Time.timeScale = 1f;
-
-        ResetAll(); // Reset semua elemen
         gameOverPanel.SetActive(false);
+        ResetAll();
     }
 
+    // === Tombol “Restart Scene” ===
+    public void RestartScene()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    // === Reset semua elemen penting di scene ===
     private void ResetAll()
     {
+        Debug.Log("🔄 Reset posisi, HP, monster, dan trap...");
+
         // Reset Player
         if (player != null)
+        {
             player.transform.position = playerStartPos;
+            if (playerMovement != null)
+                playerMovement.ResetHealth();
+        }
 
         // Reset Monster
         if (monster != null)
             monster.ResetMonster();
 
-        // Reset semua Trap
+        // Reset semua trap
         if (traps != null)
         {
             foreach (var trap in traps)
                 trap.ResetTrap();
         }
 
-        Debug.Log("Semua objek telah di-reset ke posisi awal!");
-    }
-
-    public void RestartScene()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Debug.Log("✅ Semua objek telah direset ke kondisi awal.");
     }
 }
