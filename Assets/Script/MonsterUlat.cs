@@ -5,6 +5,7 @@ public class MonsterUlat : MonoBehaviour
     private GameOverManager gameOverManager;
     public float speed = 2f; // kecepatan maju
     public Transform player; // untuk deteksi tabrakan (opsional)
+    private bool canMove = true;
 
     void Start()
     {
@@ -22,6 +23,7 @@ public class MonsterUlat : MonoBehaviour
 
     void Update()
     {
+        if (!canMove) return; // berhenti kalau tidak boleh bergerak
         // Bergerak terus ke kanan tanpa henti
         transform.Translate(Vector2.right * speed * Time.deltaTime);
     }
@@ -31,11 +33,24 @@ public class MonsterUlat : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("GAME OVER: Monster caught the player!");
-            if (gameOverManager != null)
-            {
-                gameOverManager.ShowGameOver();
-            }
+            gameOverManager?.ShowGameOver();
         }
-
+        else if (other.CompareTag("Barrier"))
+        {
+            StopMoving();
+            Debug.Log("Monster menabrak barrier dan berhenti (trigger mode)!");
+        }
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Hentikan saat nabrak barrier
+        if (collision.gameObject.CompareTag("Barrier"))
+        {
+            StopMoving();
+            Debug.Log("Monster menabrak barrier dan berhenti!");
+        }
+    }
+
+    public void StopMoving() => canMove = false;
+    public void ResumeMoving() => canMove = true;
 }
