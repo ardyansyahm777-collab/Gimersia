@@ -5,6 +5,8 @@ using TMPro; // <-- TAMBAHKAN INI (untuk TextMeshPro)
 
 public class PlayerMovement : MonoBehaviour
 {
+    private Animator _animator;
+
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
