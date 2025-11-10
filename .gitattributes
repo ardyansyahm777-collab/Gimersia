@@ -1,4 +1,15 @@
-# Auto detect text files and perform LF normalization
-* text=auto
-# Ensure git stores this file with LF line endings in repo
-# (no functional change; informational)
+# Atur default untuk semua file teks
+* text=auto eol=lf
+
+# Paksa semua file teks penting Unity untuk selalu menggunakan LF
+*.cs text eol=lf
+*.cginc text eol=lf
+*.shader text eol=lf
+
+*.unity text eol=lf
+*.prefab text eol=lf
+*.asset text eol=lf
+*.meta text eol=lf
+*.mat text eol=lf
+*.anim text eol=lf
+*.controller text eol=lf

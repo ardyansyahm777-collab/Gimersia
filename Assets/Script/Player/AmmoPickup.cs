@@ -5,7 +5,17 @@ public class AmmoPickup : MonoBehaviour
 {
     [Header("Settings")]
     public int ammoAmount = 5;
-    public float respawnCooldown = 10f; // Cooldown 10 detik
+    public float respawnCooldown = 10f;
+
+    // --- TAMBAHAN BARU UNTUK EFEK NAIK-TURUN ---
+    [Header("Bobbing Effect")]
+    [Tooltip("Seberapa tinggi 'lompatan' pickup")]
+    public float bobHeight = 0.25f; // Naik turun sejauh 0.25 unit
+    [Tooltip("Seberapa cepat 'lompatan'")]
+    public float bobSpeed = 3f;
+
+    private Vector3 startPosition; // Posisi awal untuk patokan
+    // --- AKHIR TAMBAHAN ---
 
     // Variabel internal
     private bool isCollected = false;
@@ -14,9 +24,13 @@ public class AmmoPickup : MonoBehaviour
 
     void Start()
     {
-        // Ambil komponen yang akan kita nyala/matikan
         sprite = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();
+
+        // --- TAMBAHAN BARU ---
+        // Simpan posisi awal untuk patokan bobbing
+        startPosition = transform.position;
+        // ---
 
         if (sprite == null || col == null)
         {
@@ -24,20 +38,34 @@ public class AmmoPickup : MonoBehaviour
         }
     }
 
+    // --- TAMBAHAN BARU: FUNGSI UPDATE ---
+    void Update()
+    {
+        // 1. Jika sudah diambil, jangan lakukan apa-apa (diam di tempat)
+        // Kita sembunyikan di Coroutine, jadi kita cek 'sprite.enabled'
+        if (!sprite.enabled) return;
+
+        // 2. Jika belum diambil, buat dia gerak naik-turun (bobbing)
+        // Kita gunakan Sinus wave untuk membuat gerakan halus
+        // Time.time * bobSpeed = seberapa cepat
+        // * bobHeight = seberapa tinggi
+        float newY = startPosition.y + (Mathf.Sin(Time.time * bobSpeed) * bobHeight);
+
+        // Terapkan posisi baru
+        transform.position = new Vector3(startPosition.x, newY, startPosition.z);
+    }
+    // --- AKHIR TAMBAHAN ---
+
+
     // Biarkan pickup yang mendeteksi player
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Cek jika itu player DAN pickup ini sedang aktif (belum diambil)
         if (other.CompareTag("Player") && !isCollected)
         {
-            // Ambil script player
             PlayerMovement player = other.GetComponent<PlayerMovement>();
             if (player != null)
             {
-                // Panggil fungsi baru di player untuk menambah ammo
                 player.AddAmmo(ammoAmount);
-
-                // Mulai proses respawn
                 StartCoroutine(RespawnCoroutine());
             }
         }
@@ -46,29 +74,30 @@ public class AmmoPickup : MonoBehaviour
     // Coroutine untuk proses menghilang dan muncul kembali
     IEnumerator RespawnCoroutine()
     {
-        // 1. Tandai sebagai "diambil"
         isCollected = true;
-
-        // 2. Sembunyikan pickup
         SetVisible(false);
 
-        // 3. Tunggu selama cooldown
+        // --- TAMBAHAN BARU ---
+        // Saat disembunyikan, kembalikan ke posisi awal
+        transform.position = startPosition;
+        // ---
+
         yield return new WaitForSeconds(respawnCooldown);
 
-        // 4. Munculkan kembali pickup
         SetVisible(true);
-
-        // 5. Tandai sebagai "siap diambil" lagi
         isCollected = false;
     }
 
     // Fungsi ini dipanggil dari luar (oleh Player) saat Game Over
     public void ResetPickup()
     {
-        // Hentikan timer respawn yang mungkin sedang berjalan
         StopAllCoroutines();
 
-        // Langsung munculkan kembali pickup
+        // --- TAMBAHAN BARU ---
+        // Pastikan kembali ke posisi awal juga saat reset
+        transform.position = startPosition;
+        // ---
+
         SetVisible(true);
         isCollected = false;
     }
