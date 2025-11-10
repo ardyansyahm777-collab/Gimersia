@@ -82,7 +82,7 @@ public class BossController : MonoBehaviour
         if (!isActive)
         {
             isActive = true;
-            StartShootingPhase();
+
             // Tampilkan HP Bar saat bos aktif
             if (healthBar != null) healthBar.gameObject.SetActive(true);
 

@@ -9,6 +9,7 @@ TagManager:
   - Barrier
   - KillZone
   - Boss
+  - AmmoPickup
   layers:
   - Default
   - TransparentFX
