@@ -33,9 +33,20 @@ public class PlayerProjectile : MonoBehaviour
             {
                 boss.TakeDamage(damage);
             }
-            
+
             // Hancurkan diri sendiri setelah mengenai bos
             Destroy(gameObject);
+        }
+        else if (other.CompareTag("Enemy"))
+        {
+            // Jika mengenai monster kecil
+            SmallMonster monster = other.GetComponent<SmallMonster>();
+            if (monster != null)
+            {
+                // Panggil fungsi TakeDamage di script monster
+                monster.TakeDamage(damage);
+            }
+            Destroy(gameObject); // Hancurkan peluru
         }
         else if (other.CompareTag("Ground")) // Hancur jika kena tanah
         {

@@ -255,6 +255,24 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    public void DieInstantly()
+    {
+        if (isInvincible || isDead) return;
+
+        currentHealth = 0; // Set HP langsung jadi 0
+        Debug.Log("Player mati instan!");
+
+        if (healthUI != null)
+        {
+            healthUI.UpdateHearts(currentHealth);
+        }
+
+        isDead = true;
+        gameOverManager?.ShowGameOver();
+        rb.velocity = Vector2.zero;
+        playerSprite.enabled = false;
+    }
+
     IEnumerator InvincibilityCoroutine()
     {
         Debug.Log("Player Kebal (Invincible)!");
