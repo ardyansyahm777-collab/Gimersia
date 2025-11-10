@@ -44,8 +44,11 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private int jumpCount;
     private bool isGrounded;
+
     private GameOverManager gameOverManager;
     private Vector3 originalScale;
+    private Animator anim;
+    private bool isAttacking = false;
 
     void Start()
     {
@@ -55,6 +58,8 @@ public class PlayerMovement : MonoBehaviour
         playerSprite = GetComponent<SpriteRenderer>();
 
         originalScale = transform.localScale;
+
+        anim = GetComponent<Animator>();
 
         // Atur ammo ke jumlah awal saat game dimulai
         currentAmmo = startingAmmo;
@@ -77,46 +82,70 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        // 1. Cek 'isDead' di paling atas
         if (isDead) return;
 
-        // Gerak kiri-kanan
+        if (isAttacking)
+        {
+            // (Opsional) Hentikan gerakan player saat menembak
+            rb.velocity = new Vector2(0, rb.velocity.y);
+
+            // Kirim info ke animator (ini penting agar dia tahu harus 'Idle'
+            // setelah menembak jika player tidak menekan apa-apa)
+            if (anim != null) anim.SetBool("isRunning", false);
+
+            return; // Lewati sisa fungsi Update
+        }
+
+        // 2. Baca input gerak HANYA SEKALI
         float moveInput = Input.GetAxisRaw("Horizontal");
+
+        // 3. Terapkan gerak
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
-        // Logika Arah Hadap
+        // 4. Kirim SEMUA info ke Animator
+        if (anim != null)
+        {
+            anim.SetBool("isRunning", moveInput != 0);
+            anim.SetBool("isGrounded", isGrounded);
+        }
 
+        // 5. Logika Arah Hadap (Flip)
         if (moveInput > 0)
         {
             isFacingRight = true;
-            // Atur scale kembali ke scale asli
             transform.localScale = originalScale;
         }
         else if (moveInput < 0)
         {
             isFacingRight = false;
-            // Balik sumbu X dari scale asli
             transform.localScale = new Vector3(-originalScale.x, originalScale.y, originalScale.z);
         }
 
-        // Lompat / double jump
+        // 6. Logika Lompat (HANYA SATU BLOK YANG BENAR)
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumps)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+
+            // Panggil Trigger "isJumping" di Animator
+            if (anim != null)
+            {
+                anim.SetTrigger("isJumping");
+            }
+
             jumpCount++;
+            isGrounded = false; // Paksa 'isGrounded' false agar animasi 'Falling' main
         }
 
-        // --- DIUBAH: Logika Tembak ---
-        // Sekarang cek cooldown DAN apakah ammo > 0
+        // 7. Logika Tembak
         if (Input.GetMouseButton(0) && Time.time > nextFireTime && currentAmmo > 0)
         {
-            // Cek jika prefab peluru di-set (agar tidak error di level 1)
             if (playerProjectilePrefab != null && firePoint != null)
             {
                 nextFireTime = Time.time + fireRate;
                 Shoot(); // Panggil fungsi tembak
             }
         }
-        // --- AKHIR PERUBAHAN ---
     }
 
     void Shoot()
@@ -151,12 +180,30 @@ public class PlayerMovement : MonoBehaviour
         if (projScript != null)
         {
             projScript.Initialize(direction, attackDamage);
+
+            if (anim != null)
+            {
+                // 1. Kunci gerakan
+                isAttacking = true;
+                // 2. Mainkan animasi tembak
+                anim.SetTrigger("isShooting");
+            }
+        }
+
+        if (anim != null)
+        {
+            anim.SetTrigger("isShooting");
         }
 
         // --- BARU: Kurangi Ammo dan Update UI ---
         currentAmmo--;
         UpdateAmmoUI();
         // ---
+    }
+
+    public void OnShootAnimationComplete()
+    {
+        isAttacking = false; // Buka kunci gerakan
     }
 
     // --- (FungSI OnCollisionEnter2D & OnCollisionExit2D tidak berubah) ---
@@ -168,6 +215,7 @@ public class PlayerMovement : MonoBehaviour
             jumpCount = 0;
         }
     }
+
     private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Ground"))

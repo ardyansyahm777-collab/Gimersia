@@ -8,11 +8,19 @@ public class MonsterUlat : MonoBehaviour
     private bool canMove = true;
     private Vector3 startPosition;
 
+    // --- TAMBAHKAN INI ---
+    private Animator anim; // Variabel untuk Animator
+    // ---
+
     void Start()
     {
         startPosition = transform.position;
         gameOverManager = FindObjectOfType<GameOverManager>();
         transform.localScale = new Vector3(1, 1, 1);
+
+        // --- TAMBAHKAN INI ---
+        anim = GetComponent<Animator>(); // Ambil komponen Animator
+        // ---
 
         if (player == null)
         {
@@ -23,6 +31,16 @@ public class MonsterUlat : MonoBehaviour
 
     void Update()
     {
+        // --- TAMBAHKAN INI ---
+        // Kirim status 'canMove' ke Animator
+        if (anim != null)
+        {
+            // Set parameter "isMoving" di Animator sesuai dengan variabel "canMove"
+            anim.SetBool("isMoving", canMove);
+        }
+        // ---
+
+        // Kode gameplay Anda TIDAK BERUBAH
         if (!canMove) return;
         transform.Translate(Vector2.right * speed * Time.deltaTime);
     }
@@ -35,7 +53,6 @@ public class MonsterUlat : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-
         if (other.CompareTag("Barrier"))
         {
             StopMoving();
