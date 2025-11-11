@@ -6,7 +6,10 @@ public class MonsterUlat : MonoBehaviour
     public float speed = 2f;
     public Transform player;
     private bool canMove = true;
+
+    // --- PERBAIKAN 1: Tipe data harus 'Vector3', bukan 'private float Vector3'
     private Vector3 startPosition;
+    // ---
 
     // --- TAMBAHKAN INI ---
     private Animator anim; // Variabel untuk Animator
@@ -16,7 +19,10 @@ public class MonsterUlat : MonoBehaviour
     {
         startPosition = transform.position;
         gameOverManager = FindObjectOfType<GameOverManager>();
-        transform.localScale = new Vector3(1, 1, 1);
+
+        // --- PERBAIKAN 2: Vector3 membutuhkan tipe data float. Tambahkan 'f' setelah angka
+        transform.localScale = new Vector3(1.6f, 1.5f, 1.5f);
+        // ---
 
         // --- TAMBAHKAN INI ---
         anim = GetComponent<Animator>(); // Ambil komponen Animator
