@@ -13,12 +13,24 @@ public class PlayerProjectile : MonoBehaviour
         direction = dir;
         damage = dmg;
         Destroy(gameObject, lifetime);
+
+        // --- TAMBAHAN BARU DI SINI ---
+
+        // 1. Hitung sudut (derajat) dari vektor arah
+        // Mathf.Atan2(y, x) menghitung sudut dalam radian.
+        // Karena sprite Anda hadap kanan (0 derajat), ini sempurna.
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+
+        // 2. Terapkan sudut itu ke rotasi Z proyektil
+        transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        // --- AKHIR TAMBAHAN ---
     }
 
     void Update()
     {
         // Gerakkan proyektil
-        transform.Translate(direction * speed * Time.deltaTime);
+        transform.Translate(Vector2.right * speed * Time.deltaTime);
     }
 
     // Deteksi tabrakan (pastikan collider-nya 'Is Trigger')
@@ -27,28 +39,23 @@ public class PlayerProjectile : MonoBehaviour
         // Cek jika mengenai Boss
         if (other.CompareTag("Boss"))
         {
-            // Ambil script BossController dan berikan damage
             BossController boss = other.GetComponent<BossController>();
             if (boss != null)
             {
                 boss.TakeDamage(damage);
             }
-
-            // Hancurkan diri sendiri setelah mengenai bos
             Destroy(gameObject);
         }
         else if (other.CompareTag("Enemy"))
         {
-            // Jika mengenai monster kecil
             SmallMonster monster = other.GetComponent<SmallMonster>();
             if (monster != null)
             {
-                // Panggil fungsi TakeDamage di script monster
                 monster.TakeDamage(damage);
             }
-            Destroy(gameObject); // Hancurkan peluru
+            Destroy(gameObject);
         }
-        else if (other.CompareTag("Ground")) // Hancur jika kena tanah
+        else if (other.CompareTag("Ground"))
         {
             Destroy(gameObject);
         }

@@ -9,6 +9,9 @@ public class BossController : MonoBehaviour
     public GameObject projectilePrefab;
     public Transform firePoint;
     public float shootInterval = 0.7f;
+
+    [Tooltip("Jeda (detik) setelah bos muncul SEBELUM dia mulai menembak")]
+    public float delayAfterEmerge = 1f;
     public float projectileSpeed = 6f;
     public int projectileDamage = 1;
 
@@ -19,16 +22,23 @@ public class BossController : MonoBehaviour
     public Transform[] leftDashPoints;
     public Transform[] rightDashPoints;
     public int numberOfDashes = 2;
-    public float fadeDuration = 1f;
+    public float fadeDuration = 1f; // Ini akan jadi durasi 'Sink' (turun)
     public float warningTime = 1.5f;
 
-    // --- BARU: Pengaturan HP Bos ---
+    [Header("Dash Visuals")]
+    [Tooltip("Multiplier ukuran bos saat dash. 0.75 = 75% ukuran asli")]
+    public float dashScaleMultiplier = 0.75f;
+    [Tooltip("Sorting Order bos saat dash agar di atas 'ground melayang'")]
+    public int dashSortingOrder = 10;
+
+    [Header("Sink Effect")]
+    public float sinkDistance = 2f; // Seberapa jauh dia turun
+
     [Header("Boss Health")]
     public int maxHealth = 20;
     private int currentHealth;
-    public BossHealthBar healthBar; // Referensi ke script HP Bar
-    private GameOverManager gameOverManager; // Untuk pop-up "Game Over"
-    // --- AKHIR BAGIAN BARU ---
+    public BossHealthBar healthBar;
+    private GameOverManager gameOverManager;
 
     // === Variabel Internal ===
     private bool isActive = false;
@@ -37,7 +47,13 @@ public class BossController : MonoBehaviour
     private float phaseTimer;
     private enum BossState { Shooting, Dashing }
     private BossState currentState;
-    private Animator bossAnimator;
+
+    private Animator anim; // Hanya satu variabel Animator
+    private bool isFacingRight = true;
+    private Vector3 originalScale;
+
+    private Vector3 dashScale; // Ukuran kecil untuk dash
+    private int originalSortingOrder; // Sorting order asli
 
     // =============================================
     // === FUNGSI UTAMA ===
@@ -46,30 +62,28 @@ public class BossController : MonoBehaviour
     void Start()
     {
         bossSprite = GetComponent<SpriteRenderer>();
-        bossAnimator = GetComponent<Animator>();
-
+        anim = GetComponent<Animator>();
         startPosition = transform.position;
-
-        // --- BARU: Inisialisasi HP ---
         currentHealth = maxHealth;
+        gameOverManager = FindObjectOfType<GameOverManager>();
+        originalScale = transform.localScale;
+
+        dashScale = originalScale * dashScaleMultiplier;
+        originalSortingOrder = bossSprite.sortingOrder;
+
         if (healthBar != null)
         {
             healthBar.SetMaxHealth(maxHealth);
-            healthBar.gameObject.SetActive(false); // Sembunyikan HP Bar dulu
+            healthBar.gameObject.SetActive(false);
         }
         else
         {
             Debug.LogError("HealthBar belum di-assign di BossController!");
         }
-        // --- AKHIR BAGIAN BARU ---
 
         if (bossSprite == null)
         {
             Debug.LogError("[Start] GAGAL: Boss Controller butuh SpriteRenderer!");
-        }
-        if (bossAnimator == null)
-        {
-            Debug.LogWarning("[Start] Boss TIDAK memiliki Animator. Ini tidak apa-apa jika disengaja.");
         }
         if (leftDashPoints.Length != rightDashPoints.Length)
         {
@@ -82,30 +96,39 @@ public class BossController : MonoBehaviour
         if (!isActive)
         {
             isActive = true;
-
-            // Tampilkan HP Bar saat bos aktif
             if (healthBar != null) healthBar.gameObject.SetActive(true);
 
+            if (player != null)
+            {
+                if (transform.position.x < player.position.x && !isFacingRight) FlipBoss();
+                else if (transform.position.x > player.position.x && isFacingRight) FlipBoss();
+            }
             StartShootingPhase();
         }
     }
 
-    // === Fase Menembak ===
     void StartShootingPhase()
     {
-        // (Fungsi ini tidak berubah)
         currentState = BossState.Shooting;
         phaseTimer = phaseSwitchTime;
-        if (bossAnimator != null) { bossAnimator.enabled = true; }
-        transform.position = startPosition;
-        StartCoroutine(FadeBoss(1f));
-        InvokeRepeating(nameof(ShootAtPlayer), 1f, shootInterval);
-    }
+        if (anim != null) anim.SetBool("isDashing", false);
 
+        StartCoroutine(EmergeFromGround());
+
+    }
     void Update()
     {
-        // (Fungsi ini tidak berubah)
         if (!isActive) return;
+
+        // Jangan lakukan update jika bos 'tidak terlihat' (misal: di dalam tanah)
+        if (bossSprite.enabled == false) return;
+
+        if (currentState == BossState.Shooting && player != null)
+        {
+            if (transform.position.x < player.position.x && !isFacingRight) FlipBoss();
+            else if (transform.position.x > player.position.x && isFacingRight) FlipBoss();
+        }
+
         if (currentState == BossState.Shooting)
         {
             phaseTimer -= Time.deltaTime;
@@ -119,56 +142,90 @@ public class BossController : MonoBehaviour
     // === Fase Dash ===
     void StartDashPhase()
     {
-        // (Fungsi ini tidak berubah)
         currentState = BossState.Dashing;
         CancelInvoke(nameof(ShootAtPlayer));
-        if (bossAnimator != null) { bossAnimator.enabled = false; }
+        // JANGAN ubah animasi dulu, biarkan 'idle'
         StartCoroutine(DashAttackSequence());
     }
 
     // === Urutan Dash ===
     IEnumerator DashAttackSequence()
     {
-        // (Fungsi ini tidak berubah)
+        // 1. Cek setup
         if (leftDashPoints.Length == 0)
         {
             Debug.LogError("Dash Points belum di-setup! Membatalkan dash.");
             StartShootingPhase();
             yield break;
         }
-        yield return StartCoroutine(FadeBoss(0f));
+
+        // 2. Turun ke tanah (sambil tetap 'idle')
+        yield return StartCoroutine(SinkIntoGround());
+
+        // 3. SETELAH di dalam tanah, ganti animasi ke 'Dashing' (UlatMove)
+        if (anim != null) anim.SetBool("isDashing", true);
+
+        // 4. Tentukan arah mulai (50/50)
         bool startFromRight = (Random.Range(0, 2) == 0);
+
+        // 5. Lakukan dash sebanyak numberOfDashes
         for (int i = 0; i < numberOfDashes; i++)
         {
             int pathIndex = Random.Range(0, leftDashPoints.Length);
             Transform startPoint;
             Transform endPoint;
+
             if (startFromRight)
             {
                 startPoint = rightDashPoints[pathIndex];
                 endPoint = leftDashPoints[pathIndex];
+                if (isFacingRight) FlipBoss(); // Hadap Kiri
             }
-            else
+            else // Mulai dari Kiri
             {
                 startPoint = leftDashPoints[pathIndex];
                 endPoint = rightDashPoints[pathIndex];
+                if (!isFacingRight) FlipBoss(); // Hadap Kanan
             }
+
+            // 7. Lakukan Dash (Fungsi ini akan memunculkan bos)
             yield return StartCoroutine(PerformDash(startPoint, endPoint));
+
+            // 8. Jeda singkat antar dash
+            yield return new WaitForSeconds(1f);
+
+            // 9. Balik arah untuk dash berikutnya
             startFromRight = !startFromRight;
         }
+
+        // 10. Selesai, kembali menembak
         StartShootingPhase();
     }
+    // --- AKHIR PERBAIKAN ---
 
     // === Helper 1x Dash ===
     IEnumerator PerformDash(Transform startPoint, Transform endPoint)
     {
-        // (Fungsi ini tidak berubah)
+        // 1. Tampilkan Tanda Seru
         GameObject warning = Instantiate(warningIndicator, startPoint.position, Quaternion.identity);
         yield return new WaitForSeconds(warningTime);
         Destroy(warning);
+
+        // 2. "Pop-up" di titik awal dash
         transform.position = startPoint.position;
         bossSprite.enabled = true;
         bossSprite.color = new Color(bossSprite.color.r, bossSprite.color.g, bossSprite.color.b, 1f);
+
+        // 2a. Atur Sorting Order ke ATAS
+        bossSprite.sortingOrder = dashSortingOrder;
+
+        // 2b. Atur Ukuran menjadi KECIL
+        transform.localScale = new Vector3(
+            isFacingRight ? dashScale.x : -dashScale.x,
+            dashScale.y,
+            dashScale.z);
+
+        // 3. Bergerak Cepat (Dash)
         float dashStartTime = Time.time;
         float distance = Vector3.Distance(startPoint.position, endPoint.position);
         float duration = distance / dashSpeed;
@@ -178,34 +235,72 @@ public class BossController : MonoBehaviour
             transform.position = Vector3.Lerp(startPoint.position, endPoint.position, t);
             yield return null;
         }
+
+        // 4. "Pop-off" (hilang) di titik akhir
         transform.position = endPoint.position;
         bossSprite.enabled = false;
         yield return new WaitForSeconds(0.5f);
     }
 
-    // === Helper Fade ===
-    IEnumerator FadeBoss(float targetAlpha)
+    // --- FUNGSI 'FadeBoss' LAMA DIHAPUS ---
+
+    // --- FUNGSI BARU: Masuk ke Tanah ---
+    IEnumerator SinkIntoGround()
     {
-        // (Fungsi ini tidak berubah)
-        if (bossSprite == null) { Debug.LogError("[Fade] GAGAL: SpriteRenderer null!"); yield break; }
-        float startAlpha = bossSprite.color.a;
         float timer = 0f;
-        while (timer < fadeDuration)
+        Vector3 startPos = transform.position;
+        Vector3 endPos = startPos - new Vector3(0, sinkDistance, 0);
+
+        while (timer < fadeDuration) // Pakai 'fadeDuration' sebagai 'sinkDuration'
         {
             timer += Time.deltaTime;
-            float newAlpha = Mathf.Lerp(startAlpha, targetAlpha, timer / fadeDuration);
-            bossSprite.color = new Color(bossSprite.color.r, bossSprite.color.g, bossSprite.color.b, newAlpha);
+            float t = timer / fadeDuration;
+            transform.position = Vector3.Lerp(startPos, endPos, t);
             yield return null;
         }
-        bossSprite.color = new Color(bossSprite.color.r, bossSprite.color.g, bossSprite.color.b, targetAlpha);
-        if (targetAlpha == 0) bossSprite.enabled = false;
-        else bossSprite.enabled = true;
+
+        transform.position = endPos;
+        bossSprite.enabled = false; // Sembunyikan setelah di bawah tanah
     }
+
+    // --- FUNGSI BARU: Muncul dari Tanah ---
+    IEnumerator EmergeFromGround()
+    {
+        // Mulai dari bawah tanah di posisi 'startPosition'
+        Vector3 startPos = startPosition - new Vector3(0, sinkDistance, 0);
+        Vector3 endPos = startPosition;
+
+        // Pastikan bos di posisi awal (di bawah tanah) dan terlihat
+        transform.position = startPos;
+        if (!isFacingRight) FlipBoss(); // Pastikan hadap kanan
+        bossSprite.enabled = true;
+
+        bossSprite.sortingOrder = originalSortingOrder;
+
+        float timer = 0f;
+        while (timer < fadeDuration) // Pakai 'fadeDuration' sebagai 'emergeDuration'
+        {
+            timer += Time.deltaTime;
+            float t = timer / fadeDuration;
+            transform.position = Vector3.Lerp(startPos, endPos, t);
+            yield return null;
+        }
+
+        transform.position = endPos;
+
+        transform.localScale = originalScale;
+
+        // 1. Tunggu jeda tambahan sesuai yang diatur di Inspector
+        yield return new WaitForSeconds(delayAfterEmerge);
+
+        // 2. Baru mulai menembak berulang kali
+        InvokeRepeating(nameof(ShootAtPlayer), 0f, shootInterval);
+    }
+    // --- AKHIR FUNGSI BARU ---
 
     // === FUNGSI DAMAGE ===
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // (Fungsi ini tidak berubah)
         if (collision.gameObject.CompareTag("Player"))
         {
             if (currentState == BossState.Dashing)
@@ -217,54 +312,49 @@ public class BossController : MonoBehaviour
         }
     }
 
-    // --- BARU: Fungsi Bos Menerima Damage ---
+    // --- Fungsi Bos Menerima Damage ---
     public void TakeDamage(int damage)
     {
-        // Jangan beri damage jika bos sedang fade (nonaktif)
+        // Jangan beri damage jika bos sedang 'di dalam tanah' atau 'pop-off'
         if (!bossSprite.enabled) return;
 
         currentHealth -= damage;
         if (healthBar != null) healthBar.SetHealth(currentHealth);
         Debug.Log($"BOSS TERKENA HIT! HP tersisa: {currentHealth}");
-
-        // Di sini Anda bisa menambahkan efek visual (misal, bos berkedip)
-
         if (currentHealth <= 0)
         {
             Die();
         }
     }
 
-    // --- BARU: Fungsi Bos Mati ---
+    // --- Fungsi Bos Mati ---
     void Die()
     {
         Debug.Log("BOSS TELAH DIKALAHKAN!");
-        DeactivateBoss(); // Hentikan semua aksi (termasuk dash/tembak)
+        DeactivateBoss();
         if (healthBar != null) healthBar.gameObject.SetActive(false);
-
-        // Matikan collider agar tidak bisa ditabrak lagi
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
-
-        // TODO: Mainkan animasi kematian di sini
-        // ...
-
-        // Tampilkan pop-up "Game Over" sebagai "You Win" sementara
         if (gameOverManager != null)
         {
-            // Tips: Anda bisa buat panel "You Win" terpisah 
-            // dan memanggilnya di sini, tapi untuk sementara:
             gameOverManager.ShowGameOver();
         }
-
-        // Hancurkan objek bos setelah 2 detik
         Destroy(gameObject, 2f);
+    }
+
+    void FlipBoss()
+    {
+        isFacingRight = !isFacingRight;
+        Vector3 scaler = transform.localScale;
+        scaler.x = isFacingRight ? originalScale.x : -originalScale.x;
+        transform.localScale = scaler;
     }
 
     // === Fungsi Tembak ===
     void ShootAtPlayer()
     {
-        // (Fungsi ini tidak berubah)
+        if (currentState != BossState.Shooting) return;
+
         if (!isActive || player == null || projectilePrefab == null) return;
         GameObject projectile = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
         Vector2 direction = (player.position - firePoint.position).normalized;
@@ -283,13 +373,8 @@ public class BossController : MonoBehaviour
     // === Fungsi Deactivate ===
     public void DeactivateBoss()
     {
-        // (Fungsi ini tidak berubah)
         isActive = false;
         CancelInvoke(nameof(ShootAtPlayer));
         StopAllCoroutines();
-        if (bossAnimator != null)
-        {
-            bossAnimator.enabled = true;
-        }
     }
 }

@@ -10,6 +10,7 @@ TagManager:
   - KillZone
   - Boss
   - AmmoPickup
+  - Enemy
   layers:
   - Default
   - TransparentFX

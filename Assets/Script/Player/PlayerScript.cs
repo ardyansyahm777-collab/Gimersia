@@ -1,11 +1,10 @@
 using UnityEngine;
 using System.Collections;
-using TMPro; // <-- TAMBAHKAN INI (untuk TextMeshPro)
-// (atau 'using UnityEngine.UI;' jika Anda pakai Text biasa)
+using TMPro; // (atau 'using UnityEngine.UI;' jika Anda pakai Text biasa)
 
 public class PlayerMovement : MonoBehaviour
 {
-    private Animator _animator;
+    // Hapus 'private Animator _animator;' (karena duplikat)
 
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
@@ -17,7 +16,6 @@ public class PlayerMovement : MonoBehaviour
     public int maxHealth = 3;
     private int currentHealth;
 
-    // --- PERUBAHAN DI SINI ---
     [Header("Attack Settings")]
     public GameObject playerProjectilePrefab;
     public Transform firePoint;
@@ -26,12 +24,11 @@ public class PlayerMovement : MonoBehaviour
     private float nextFireTime = 0f;
 
     [Tooltip("Jumlah ammo saat ini")]
-    public int currentAmmo = 10; // Ammo awal
+    public int currentAmmo = 10;
     [Tooltip("Jumlah ammo awal saat memulai/reset")]
     public int startingAmmo = 10;
     [Tooltip("UI Text untuk menampilkan jumlah ammo")]
-    public TMP_Text ammoText; // Referensi ke UI Text
-    // --- AKHIR PERUBAHAN ---
+    public TMP_Text ammoText;
 
     [Header("Invincibility")]
     public float invincibilityDuration = 1.5f;
@@ -56,14 +53,11 @@ public class PlayerMovement : MonoBehaviour
         currentHealth = maxHealth;
         gameOverManager = FindObjectOfType<GameOverManager>();
         playerSprite = GetComponent<SpriteRenderer>();
-
         originalScale = transform.localScale;
-
         anim = GetComponent<Animator>();
 
-        // Atur ammo ke jumlah awal saat game dimulai
         currentAmmo = startingAmmo;
-        UpdateAmmoUI(); // Update UI
+        UpdateAmmoUI(); // Update UI (Hanya perlu satu kali)
 
         if (playerSprite == null)
         {
@@ -74,43 +68,36 @@ public class PlayerMovement : MonoBehaviour
         {
             healthUI.UpdateHearts(currentHealth);
         }
-
-        // --- BARU: Update UI Ammo saat mulai ---
-        UpdateAmmoUI();
-        // ---
     }
 
+    // --- FUNGSI UPDATE YANG SUDAH DIBERSIHKAN ---
     void Update()
     {
         // 1. Cek 'isDead' di paling atas
         if (isDead) return;
 
+        // 2. Cek 'isAttacking' (mengunci gerakan)
         if (isAttacking)
         {
-            // (Opsional) Hentikan gerakan player saat menembak
-            rb.velocity = new Vector2(0, rb.velocity.y);
-
-            // Kirim info ke animator (ini penting agar dia tahu harus 'Idle'
-            // setelah menembak jika player tidak menekan apa-apa)
+            rb.velocity = new Vector2(0, rb.velocity.y); // Hentikan gerakan
             if (anim != null) anim.SetBool("isRunning", false);
-
             return; // Lewati sisa fungsi Update
         }
 
-        // 2. Baca input gerak HANYA SEKALI
+        // 3. Baca input gerak HANYA SEKALI
         float moveInput = Input.GetAxisRaw("Horizontal");
 
-        // 3. Terapkan gerak
+        // 4. Terapkan gerak
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
-        // 4. Kirim SEMUA info ke Animator
+        // 5. Kirim SEMUA info ke Animator
         if (anim != null)
         {
             anim.SetBool("isRunning", moveInput != 0);
             anim.SetBool("isGrounded", isGrounded);
         }
 
-        // 5. Logika Arah Hadap (Flip)
+        // 6. Logika Arah Hadap (Flip)
         if (moveInput > 0)
         {
             isFacingRight = true;
@@ -122,12 +109,11 @@ public class PlayerMovement : MonoBehaviour
             transform.localScale = new Vector3(-originalScale.x, originalScale.y, originalScale.z);
         }
 
-        // 6. Logika Lompat (HANYA SATU BLOK YANG BENAR)
+        // 7. Logika Lompat (HANYA SATU BLOK)
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumps)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
 
-            // Panggil Trigger "isJumping" di Animator
             if (anim != null)
             {
                 anim.SetTrigger("isJumping");
@@ -137,7 +123,7 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = false; // Paksa 'isGrounded' false agar animasi 'Falling' main
         }
 
-        // 7. Logika Tembak
+        // 8. Logika Tembak
         if (Input.GetMouseButton(0) && Time.time > nextFireTime && currentAmmo > 0)
         {
             if (playerProjectilePrefab != null && firePoint != null)
@@ -147,11 +133,11 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
+    // --- AKHIR FUNGSI UPDATE ---
 
+    // --- FUNGSI SHOOT YANG SUDAH DIBERSIHKAN ---
     void Shoot()
     {
-        // (Kita pindahkan cek null ke Update, jadi di sini aman)
-
         Vector2 direction = Vector2.zero;
         direction.y = Input.GetKey(KeyCode.W) ? 1 : 0;
         float horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -177,36 +163,32 @@ public class PlayerMovement : MonoBehaviour
         }
         GameObject projectile = Instantiate(playerProjectilePrefab, firePoint.position, Quaternion.identity);
         PlayerProjectile projScript = projectile.GetComponent<PlayerProjectile>();
+
         if (projScript != null)
         {
             projScript.Initialize(direction, attackDamage);
 
+            // Panggil trigger HANYA SATU KALI DI SINI
             if (anim != null)
             {
-                // 1. Kunci gerakan
-                isAttacking = true;
-                // 2. Mainkan animasi tembak
-                anim.SetTrigger("isShooting");
+                isAttacking = true; // 1. Kunci gerakan
+                anim.SetTrigger("isShooting"); // 2. Mainkan animasi tembak
             }
         }
 
-        if (anim != null)
-        {
-            anim.SetTrigger("isShooting");
-        }
+        // HAPUS PANGGILAN 'anim.SetTrigger("isShooting")' YANG DUPLIKAT DARI SINI
 
-        // --- BARU: Kurangi Ammo dan Update UI ---
         currentAmmo--;
         UpdateAmmoUI();
-        // ---
     }
+    // --- AKHIR FUNGSI SHOOT ---
 
     public void OnShootAnimationComplete()
     {
         isAttacking = false; // Buka kunci gerakan
     }
 
-    // --- (FungSI OnCollisionEnter2D & OnCollisionExit2D tidak berubah) ---
+    // --- (OnCollisionEnter2D & OnCollisionExit2D tidak berubah) ---
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Ground"))
@@ -224,7 +206,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // --- BARU: Fungsi untuk Update UI Ammo ---
+    // --- (UpdateAmmoUI tidak berubah) ---
     void UpdateAmmoUI()
     {
         if (ammoText != null)
@@ -232,34 +214,54 @@ public class PlayerMovement : MonoBehaviour
             ammoText.text = "AMMO: " + currentAmmo;
         }
     }
-    // ---
 
-    // --- (Sistem HP dan Coroutine Kebal tidak berubah) ---
+    // --- FUNGSI TAKE DAMAGE (UNTUK ANIMASI KEMATIAN) ---
+    // --- INI ADALAH VERSI YANG SUDAH DIPERBAIKI ---
     public void TakeDamage(int amount)
     {
         if (isInvincible || isDead) return;
+
         currentHealth -= amount;
         Debug.Log($"Player terkena serangan! HP tersisa: {currentHealth}");
+
         if (healthUI != null)
         {
             healthUI.UpdateHearts(currentHealth);
         }
-        StartCoroutine(InvincibilityCoroutine());
+
+        // --- INI LOGIKA YANG BENAR ---
         if (currentHealth <= 0)
         {
+            // --- JIKA PLAYER MATI ---
             isDead = true;
             Debug.Log("Player mati — Game Over!");
-            gameOverManager?.ShowGameOver();
-            rb.velocity = Vector2.zero;
-            playerSprite.enabled = false;
-        }
-    }
 
+            // 1. Panggil trigger animasi
+            if (anim != null)
+            {
+                anim.SetTrigger("isDead");
+            }
+
+            // 2. Tampilkan Game Over
+            gameOverManager?.ShowGameOver();
+            rb.velocity = Vector2.zero; // Hentikan gerakan
+        }
+        else
+        {
+            // --- JIKA PLAYER HANYA TERLUKA ---
+            // Hanya mulai berkedip JIKA player TIDAK mati
+            StartCoroutine(InvincibilityCoroutine());
+        }
+        // --- AKHIR PERBAIKAN ---
+    }
+    // --- AKHIR PERBAIKAN TAKE DAMAGE ---
+
+    // --- FUNGSI DIE INSTANTLY (UNTUK ANIMASI KEMATIAN) ---
     public void DieInstantly()
     {
         if (isInvincible || isDead) return;
 
-        currentHealth = 0; // Set HP langsung jadi 0
+        currentHealth = 0;
         Debug.Log("Player mati instan!");
 
         if (healthUI != null)
@@ -268,11 +270,19 @@ public class PlayerMovement : MonoBehaviour
         }
 
         isDead = true;
+
+        // 1. Panggil trigger animasi
+        if (anim != null)
+        {
+            anim.SetTrigger("isDead");
+        }
+
+        // 2. Tampilkan Game Over
         gameOverManager?.ShowGameOver();
-        rb.velocity = Vector2.zero;
-        playerSprite.enabled = false;
+        rb.velocity = Vector2.zero; // Hentikan gerakan
     }
 
+    // --- (Coroutine Kebal tidak berubah) ---
     IEnumerator InvincibilityCoroutine()
     {
         Debug.Log("Player Kebal (Invincible)!");
@@ -289,6 +299,7 @@ public class PlayerMovement : MonoBehaviour
         isInvincible = false;
     }
 
+    // --- (ResetHealth tidak berubah) ---
     public void ResetHealth()
     {
         currentHealth = maxHealth;
@@ -296,16 +307,12 @@ public class PlayerMovement : MonoBehaviour
         {
             healthUI.UpdateHearts(currentHealth);
         }
-
         currentAmmo = startingAmmo;
         UpdateAmmoUI();
-
         isDead = false;
         isInvincible = false;
         playerSprite.enabled = true;
         gameObject.SetActive(true);
-
-        // Cari semua objek AmmoPickup di scene dan panggil fungsi Reset-nya
         AmmoPickup[] allPickups = FindObjectsOfType<AmmoPickup>();
         foreach (AmmoPickup pickup in allPickups)
         {
@@ -313,11 +320,10 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // Fungsi ini akan dipanggil oleh script AmmoPickup
+    // --- (AddAmmo tidak berubah) ---
     public void AddAmmo(int amount)
     {
         currentAmmo += amount;
         UpdateAmmoUI();
     }
-    // ---
 }

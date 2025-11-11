@@ -424,12 +424,21 @@ PrefabInstance:
       propertyPath: playerProjectilePrefab
       value: 
       objectReference: {fileID: 6913463952096583639, guid: 21d41354089de3a42a8163372cd0a77e, type: 3}
+    - target: {fileID: 7437955579505028879, guid: 75552f9fff9652e41a3c3d902e74c4f9, type: 3}
+      propertyPath: ammoText
+      value: 
+      objectReference: {fileID: 1588598199}
+    - target: {fileID: 7437955579505028879, guid: 75552f9fff9652e41a3c3d902e74c4f9, type: 3}
+      propertyPath: healthUI
+      value: 
+      objectReference: {fileID: 1631388731}
     - target: {fileID: 8029146841131761796, guid: 75552f9fff9652e41a3c3d902e74c4f9, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: c35fe60163acbbe458eeb77b27797ea4, type: 3}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 3508695792315888343, guid: 75552f9fff9652e41a3c3d902e74c4f9, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 4720166673760353006, guid: 75552f9fff9652e41a3c3d902e74c4f9, type: 3}
       insertIndex: -1
@@ -518,6 +527,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &844797217 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2247042789020369784, guid: e14f149139e25d144908baeb41363732, type: 3}
+  m_PrefabInstance: {fileID: 2045246013729402819}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &844797218
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 844797217}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5eaf0c369bfc65149af7a46444d5f905, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &915559409
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -643,6 +678,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5bcd6e8b1a740ec449a329e1ed3f02c8, type: 3}
+--- !u!4 &1073927589 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8452847849899051975, guid: 75552f9fff9652e41a3c3d902e74c4f9, type: 3}
+  m_PrefabInstance: {fileID: 270070776}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1081312069 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7945552766075335775, guid: 79cdc4f6e228455479311cd9694cb1eb, type: 3}
@@ -1170,14 +1210,34 @@ PrefabInstance:
       propertyPath: m_Name
       value: BossUlat
       objectReference: {fileID: 0}
+    - target: {fileID: 4175119038620231328, guid: e14f149139e25d144908baeb41363732, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 332cd37896514d4439a9916ae09e8f64, type: 3}
+    - target: {fileID: 4175119038620231328, guid: e14f149139e25d144908baeb41363732, type: 3}
+      propertyPath: m_SpriteSortPoint
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6124783093606808040, guid: e14f149139e25d144908baeb41363732, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 6124783093606808040, guid: e14f149139e25d144908baeb41363732, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.33
+      objectReference: {fileID: 0}
     - target: {fileID: 6294319822558886909, guid: e14f149139e25d144908baeb41363732, type: 3}
       propertyPath: player
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1073927589}
     - target: {fileID: 6294319822558886909, guid: e14f149139e25d144908baeb41363732, type: 3}
       propertyPath: healthBar
       value: 
       objectReference: {fileID: 1081312069}
+    - target: {fileID: 6294319822558886909, guid: e14f149139e25d144908baeb41363732, type: 3}
+      propertyPath: phaseSwitchTime
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6294319822558886909, guid: e14f149139e25d144908baeb41363732, type: 3}
       propertyPath: leftDashPoints.Array.data[0]
       value: 
@@ -1200,11 +1260,11 @@ PrefabInstance:
       objectReference: {fileID: 929877375}
     - target: {fileID: 8009082529287365104, guid: e14f149139e25d144908baeb41363732, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.07
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8009082529287365104, guid: e14f149139e25d144908baeb41363732, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 5.89
+      value: 4.28
       objectReference: {fileID: 0}
     - target: {fileID: 8009082529287365104, guid: e14f149139e25d144908baeb41363732, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1241,7 +1301,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2247042789020369784, guid: e14f149139e25d144908baeb41363732, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 844797218}
   m_SourcePrefab: {fileID: 100100000, guid: e14f149139e25d144908baeb41363732, type: 3}
 --- !u!1001 &3239122586937959313
 PrefabInstance:
