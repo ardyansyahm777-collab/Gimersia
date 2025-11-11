@@ -5,8 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
-    [Tooltip("tes move")]
-    public string gameSceneName = "tes move";
+    [Tooltip("Level 1")]
+    public string gameSceneName = "Level 1";
 
 
     public void StartGameButton()

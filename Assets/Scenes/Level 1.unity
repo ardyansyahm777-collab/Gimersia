@@ -1427,8 +1427,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 19.398197, y: 3.4628992}
   m_EdgeRadius: 0
-<<<<<<< HEAD
-=======
+  
 --- !u!1001 &540375009
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1537,7 +1536,7 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 421993100}
   m_SourcePrefab: {fileID: 100100000, guid: 6910db5eab6f6d24a9d58e41b4840fda, type: 3}
->>>>>>> a971774ed69177c294a954fa5211dac8ab57a473
+
 --- !u!1001 &583418179
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4974,9 +4973,9 @@ SceneRoots:
   - {fileID: 851682184}
   - {fileID: 112654495}
   - {fileID: 659170628}
-<<<<<<< HEAD
+
   - {fileID: 1878978494}
-=======
+
   - {fileID: 1563748345}
   - {fileID: 261562521}
->>>>>>> a971774ed69177c294a954fa5211dac8ab57a473
+
