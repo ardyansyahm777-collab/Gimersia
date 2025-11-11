@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6749760997423641879}
   - component: {fileID: 1285092637410611100}
   m_Layer: 0
-  m_Name: smallMonster
+  m_Name: Semut
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
