@@ -12,6 +12,7 @@ public class GameOverManager : MonoBehaviour
     private TrapActivator[] traps;
     private Vector3 playerStartPos;
 
+
     void Start()
     {
         if (gameOverPanel != null)
@@ -43,6 +44,11 @@ public class GameOverManager : MonoBehaviour
         {
             Debug.LogWarning("⚠️ GameOverPanel belum di-assign di Inspector!");
             return;
+        }
+        AudioSource[] allAudioSources = FindObjectsOfType<AudioSource>();
+        foreach (AudioSource audio in allAudioSources)
+        {
+            audio.Stop();
         }
 
         Time.timeScale = 0f;

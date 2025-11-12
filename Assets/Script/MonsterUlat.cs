@@ -21,7 +21,7 @@ public class MonsterUlat : MonoBehaviour
         gameOverManager = FindObjectOfType<GameOverManager>();
 
         // --- PERBAIKAN 2: Vector3 membutuhkan tipe data float. Tambahkan 'f' setelah angka
-        transform.localScale = new Vector3(1.6f, 1.5f, 1.5f);
+        transform.localScale = new Vector3(1.9f, 1.8f, 1.5f);
         // ---
 
         // --- TAMBAHKAN INI ---
