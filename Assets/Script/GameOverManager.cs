@@ -5,6 +5,7 @@ public class GameOverManager : MonoBehaviour
 {
     [Header("UI")]
     public GameObject gameOverPanel;
+    public GameObject gameWinnerPanel;
 
     private GameObject player;
     private PlayerMovement playerMovement;
@@ -54,6 +55,26 @@ public class GameOverManager : MonoBehaviour
         Time.timeScale = 0f;
         gameOverPanel.SetActive(true);
     }
+
+    public void ShowGameWinner()
+    {
+        Debug.Log("Win, Bos telah dikalahkan");
+
+        if (gameWinnerPanel == null)
+        {
+            Debug.LogWarning("⚠️ GameWinnerPanel belum di-assign di Inspector!");
+            return;
+        }
+        AudioSource[] allAudioSources = FindObjectsOfType<AudioSource>();
+        foreach (AudioSource audio in allAudioSources)
+        {
+            audio.Stop();
+        }
+
+        Time.timeScale = 0f;
+        gameOverPanel.SetActive(true);
+    }
+
 
     // === Tombol “Coba Lagi” ===
     public void ReturnToStart()

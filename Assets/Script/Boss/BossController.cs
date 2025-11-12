@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class BossController : MonoBehaviour
 {
@@ -337,7 +338,8 @@ public class BossController : MonoBehaviour
         if (col != null) col.enabled = false;
         if (gameOverManager != null)
         {
-            gameOverManager.ShowGameOver();
+            gameOverManager.ShowGameWinner();
+            SceneManager.LoadScene("epilog");
         }
         Destroy(gameObject, 2f);
     }

@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/main menu.unity
     guid: 37993dd7c1650434ba3d02145a1d700a
   - enabled: 1
+    path: Assets/Scenes/prologue.unity
+    guid: 037b493f648af0b4e8aab5033fd6180d
+  - enabled: 1
     path: Assets/Scenes/Level 1.unity
     guid: 6cf1bd27c6da63749a0ff2908a731f83
   - enabled: 1
@@ -20,4 +23,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BossFight.unity
     guid: 7d67793ccc41aa941b0a8be38054145d
+  - enabled: 1
+    path: Assets/Scenes/epilog.unity
+    guid: 009f7d9269d1e5944ba73a186483b67c
   m_configObjects: {}

@@ -5,11 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
- 
+
     public void StartGameButton()
     {
         Debug.Log("Mulai Game...");
-        SceneManager.LoadScene("Level 1");
+        SceneManager.LoadScene("prologue");
     }
 
     public void OptionsButton()
