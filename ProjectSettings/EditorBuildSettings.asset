@@ -5,15 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/SampleScene.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/tes move.unity
-    guid: b706d9e6c6cfc4b489c5247bdeae41f9
+    path: Assets/Scenes/Level 1.unity
+    guid: 6cf1bd27c6da63749a0ff2908a731f83
   - enabled: 1
-    path: Assets/Scenes/tes next lv.unity
-    guid: 4396b90b39103e244a5a3f028c66a2b5
+    path: Assets/Scenes/Level 2.unity
+    guid: 80d8cbbb1a72397469edeb8753daa6e6
   - enabled: 1
     path: Assets/Scenes/BossFight.unity
     guid: 7d67793ccc41aa941b0a8be38054145d
