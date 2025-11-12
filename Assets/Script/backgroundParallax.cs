@@ -1,44 +1,66 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class backgroundScrolling : MonoBehaviour
+public class BackgroundScroller : MonoBehaviour
 {
-    private float lenght, startpos;
+    private float length; // Panjang (lebar) sprite background
+    private float startpos; // Posisi X awal background
+
+    // Objek Kamera yang akan diikuti (biasanya Main Camera)
     public GameObject cam;
+
+    // Kontrol seberapa cepat background bergerak relatif terhadap kamera
+    [Range(-1f, 1f)]
     public float parallaxEffect;
 
     void Start()
     {
+        // Menyimpan posisi X awal objek background
         startpos = transform.position.x;
-        // Ambil lebar SpriteRenderer
-        lenght = GetComponent<SpriteRenderer>().bounds.size.x;
+
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null)
+        {
+            length = sr.bounds.size.x;
+        }
+        else
+        {
+            Debug.LogError("SpriteRenderer tidak ditemukan pada objek ini!");
+        }
+
+        // Pastikan variabel cam sudah di-set di Inspector
+        if (cam == null)
+        {
+            // Coba temukan kamera utama secara otomatis jika belum di-set
+            cam = Camera.main.gameObject;
+        }
     }
 
     void FixedUpdate()
     {
-        // 1. Hitung titik reset (posisi kamera relatif terhadap background startpos, dikurangi efek paralaks)
-        // Jika kamera bergerak melewati startpos + lenght, background harus di-reset.
-        float temp = (cam.transform.position.x * (1 - parallaxEffect));
+        // Periksa jika cam masih null
+        if (cam == null) return;
 
-        // 2. Hitung jarak pergerakan paralaks
+        // --- Perhitungan Parallax ---
         float dist = (cam.transform.position.x * parallaxEffect);
 
-        // 3. Terapkan posisi paralaks
-        transform.position = new Vector3(startpos + dist, transform.position.y, transform.position.z);
+        // 2. Hitung posisi X baru
+        // Posisi X baru = Posisi X awal + pergerakan paralaks
+        float newPosX = startpos + dist;
 
-        // 4. Logika Looping (Reset Posisi)
-        // Jika kamera telah bergerak melewati titik start + panjang background (ke kanan)
-        if (temp > startpos + lenght)
+        // 3. Terapkan posisi paralaks
+        // transform.position.y TIDAK berubah, sehingga Y tetap
+        transform.position = new Vector3(newPosX, transform.position.y, transform.position.z);
+
+        // --- Logika Looping (Reset Posisi) ---
+        float offsetCameraX = (cam.transform.position.x - startpos) * (1 - parallaxEffect);
+
+        if (offsetCameraX > length)
         {
-            // Reset startpos ke kanan sejauh panjang background
-            startpos += lenght;
+            startpos += length;
         }
-        // Jika kamera telah bergerak melewati titik start - panjang background (ke kiri)
-        else if (temp < startpos - lenght)
+        else if (offsetCameraX < -length)
         {
-            // Reset startpos ke kiri sejauh panjang background
-            startpos -= lenght;
+            startpos -= length;
         }
     }
 }

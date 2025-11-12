@@ -5,14 +5,12 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
-    [Tooltip("Level 1")]
-    public string gameSceneName = "Level 1";
 
 
     public void StartGameButton()
     {
         Debug.Log("Mulai Game...");
-        SceneManager.LoadScene(gameSceneName);
+        SceneManager.LoadScene("Level 1");
     }
 
     public void OptionsButton()
