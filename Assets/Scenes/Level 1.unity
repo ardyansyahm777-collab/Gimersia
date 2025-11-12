@@ -713,8 +713,7 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 695474160}
   m_SourcePrefab: {fileID: 100100000, guid: f3c12d8f395e79d428afa33cd38b88b5, type: 3}
-<<<<<<< HEAD
-=======
+
 --- !u!1 &319889841
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,7 +744,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1029941442}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!68 &319889843
 EdgeCollider2D:
@@ -816,7 +815,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
->>>>>>> 55de1e48f6d78354b7b1613ffe00bf4051dcfe8c
+
 --- !u!1 &337763937 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1816924477667827971, guid: 06176827a41866c40993986645a14041, type: 3}
@@ -4975,8 +4974,8 @@ SceneRoots:
   - {fileID: 1878978494}
   - {fileID: 1563748345}
   - {fileID: 261562521}
-<<<<<<< HEAD
+
   - {fileID: 1045643878}
-=======
+
   - {fileID: 1274264617}
->>>>>>> 55de1e48f6d78354b7b1613ffe00bf4051dcfe8c
+
