@@ -1988,6 +1988,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 802802982}
     - target: {fileID: 6294319822558886909, guid: e14f149139e25d144908baeb41363732, type: 3}
+      propertyPath: maxHealth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6294319822558886909, guid: e14f149139e25d144908baeb41363732, type: 3}
       propertyPath: sinkDistance
       value: 5
       objectReference: {fileID: 0}
