@@ -191,10 +191,29 @@ public class PlayerMovement : MonoBehaviour
     // --- (OnCollisionEnter2D & OnCollisionExit2D tidak berubah) ---
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // Cek jika yang kita tabrak adalah "Ground"
         if (collision.collider.CompareTag("Ground"))
         {
-            isGrounded = true;
-            jumpCount = 0;
+            // Cek di mana kita menyentuhnya
+            // Kita ambil semua titik kontak
+            ContactPoint2D[] contacts = new ContactPoint2D[10]; // (Maks 10 kontak)
+            int contactCount = collision.GetContacts(contacts);
+
+            for (int i = 0; i < contactCount; i++)
+            {
+                // 'contacts[i].normal' adalah arah "dorongan" dari platform
+                // (0, 1) berarti platform ada DI BAWAH kita (mendorong kita ke ATAS)
+
+                // Jika normal.y lebih besar dari 0.5 (artinya kita mendarat di atas sesuatu)
+                if (contacts[i].normal.y > 0.5f)
+                {
+                    isGrounded = true;
+                    jumpCount = 0;
+
+                    // Kita sudah tahu kita mendarat, tidak perlu cek kontak lain
+                    return;
+                }
+            }
         }
     }
 
