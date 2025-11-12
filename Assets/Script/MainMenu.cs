@@ -5,8 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
-
-
+ 
     public void StartGameButton()
     {
         Debug.Log("Mulai Game...");

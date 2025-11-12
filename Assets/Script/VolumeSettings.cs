@@ -23,7 +23,6 @@ public class VolumeSettings : MonoBehaviour
 
     }
 
-    // Perbaikan: Ganti nama ke SetMusicVolume (tanpa 'u' ganda) dan hapus parameter
     public void SetMusicVolume()
     {
         // Ambil nilai dari slider
