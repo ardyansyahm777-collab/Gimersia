@@ -336,14 +336,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: main
       objectReference: {fileID: 0}
-    - target: {fileID: 7437955579505028879, guid: 75552f9fff9652e41a3c3d902e74c4f9, type: 3}
-      propertyPath: currentAmmo
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7437955579505028879, guid: 75552f9fff9652e41a3c3d902e74c4f9, type: 3}
-      propertyPath: startingAmmo
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8500651795459920064, guid: 75552f9fff9652e41a3c3d902e74c4f9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

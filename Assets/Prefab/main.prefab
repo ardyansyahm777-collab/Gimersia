@@ -258,8 +258,8 @@ MonoBehaviour:
   firePoint: {fileID: 3732948068585305321}
   attackDamage: 1
   fireRate: 0.5
-  currentAmmo: 10
-  startingAmmo: 10
+  currentAmmo: 0
+  startingAmmo: 0
   ammoText: {fileID: 9121458975117154925}
   invincibilityDuration: 1.5
   blinkSpeed: 0.1
