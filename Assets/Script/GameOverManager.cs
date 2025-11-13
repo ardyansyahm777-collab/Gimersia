@@ -58,21 +58,21 @@ public class GameOverManager : MonoBehaviour
 
     public void ShowGameWinner()
     {
-        Debug.Log("Win, Bos telah dikalahkan");
+        Debug.Log("Win, Bos telah dikalahkan. Memuat Epilog...");
 
-        if (gameWinnerPanel == null)
-        {
-            Debug.LogWarning("⚠️ GameWinnerPanel belum di-assign di Inspector!");
-            return;
-        }
+        // 1. Pastikan waktu berjalan normal untuk scene baru
+        Time.timeScale = 1f;
+
+        // 2. Hentikan semua audio (ini sudah benar)
         AudioSource[] allAudioSources = FindObjectsOfType<AudioSource>();
         foreach (AudioSource audio in allAudioSources)
         {
             audio.Stop();
         }
 
-        Time.timeScale = 0f;
-        gameOverPanel.SetActive(true);
+        // 3. Muat scene "epilog" Anda
+        // GANTI "epilog" dengan NAMA FILE SCENE Anda (jika berbeda)
+        SceneManager.LoadScene("epilog");
     }
 
 
